@@ -44,15 +44,15 @@ class _MyHomePage extends State<MyHomePage> {
       style: optionStyle,
     ),
     Text(
-      'Index 1: Business',
+      'Index 1: buscar',
       style: optionStyle,
     ),
     Text(
-      'Index 2: School',
+      'Index 2: lista',
       style: optionStyle,
     ),
     Text(
-      'Index 233: School',
+      'Index 3: sobre',
       style: optionStyle,
     ),
   ];
@@ -66,33 +66,40 @@ class _MyHomePage extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('BottomNavigationBar Sample'),
-      ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(
+              Icons.home,
+              color: Colors.white,
+            ),
             label: 'Início',
+            backgroundColor: Color.fromRGBO(98, 6, 35, 1),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
+            icon: Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
             label: 'Buscar',
+            backgroundColor: Color.fromRGBO(98, 6, 35, 1),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Lista',
+            backgroundColor: Color.fromRGBO(98, 6, 35, 1),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
             label: 'Sobre',
+            backgroundColor: Color.fromRGBO(98, 6, 35, 1),
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.white,
         onTap: _onItemTapped,
       ),
     );
