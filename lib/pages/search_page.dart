@@ -12,37 +12,41 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   String _therm = "";
+  bool _showKeyBoard = false;
   final _thermController = TextEditingController();
   static RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
   String _imgUrl = "";
+  late AnimationController spinner_controller;
 
   void get() async {
     http.Response response;
-    if (_therm! == "") {
+    if (_therm != "") {
       response = await http.get(Uri.parse(Requests(therm: _therm).getPhotos()),
           headers: headersPhotos);
     } else {
       response = await http.get(Uri.parse(Requests(therm: _therm).getPhotos()),
           headers: headersPhotos);
     }
-    print(json.decode(response.body));
-    print(json.decode(response.body)[0]['image']['url']);
+
     setState(() {
       _imgUrl = json.decode(response.body)[0]['image']['url'];
     });
 
-    print('iamgem agora: $_imgUrl');
     return json.decode(response.body);
   }
 
+  void _toggleKeyBoard(bool show) {
+    setState(() {
+      _showKeyBoard = show;
+    });
+  }
+
   void _getPlace() async {
-    Timer(Duration(seconds: 3), () {
-      setState(() {
-        get();
-      });
+    Timer(Duration(seconds: 2), () {
+      get();
       _btnController.success();
     });
   }
@@ -50,6 +54,10 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+    spinner_controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    );
   }
 
   @override
@@ -67,13 +75,16 @@ class _SearchPageState extends State<SearchPage> {
           child: SizedBox(
             width: 380,
             child: TextField(
+              readOnly: _showKeyBoard,
+              showCursor: _showKeyBoard,
               controller: _thermController,
+              onTap: () => _toggleKeyBoard(false),
               onChanged: (text) {
                 setState(() {
                   _therm = text;
                 });
               },
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 20, color: Colors.black),
               obscureText: false,
               decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -90,7 +101,8 @@ class _SearchPageState extends State<SearchPage> {
             color: Colors.black,
             successColor: Color.fromRGBO(98, 6, 35, 1),
             controller: _btnController,
-            onPressed: _getPlace,
+            onPressed: () =>
+                {_toggleKeyBoard(true), _getPlace(), _thermController.clear()},
             child: Text(
               "Buscar",
               style: GoogleFonts.roboto(
@@ -98,7 +110,52 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
         ),
+        _Card(context)
       ]),
     );
+  }
+
+  Widget _Card(BuildContext context) {
+    if (_imgUrl != '') {
+      return Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Expanded(
+          child: Column(
+            children: [
+              Text(
+                _therm.toUpperCase(),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                child: _imgUrl == ""
+                    ? CircularProgressIndicator(color: Colors.black)
+                    : Image.network(
+                        _imgUrl,
+                        width: 500.0,
+                        height: 200.0,
+                      ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  print("clicado");
+                },
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                        Color.fromRGBO(98, 6, 35, 1))),
+                child: Text("Adicionar à lista"),
+              )
+            ],
+          ),
+        ),
+      );
+    } else {
+      return (Container(
+        child: CircularProgressIndicator(
+          value: spinner_controller.value,
+          semanticsLabel: 'Linear progress indicator',
+        ),
+      ));
+    }
   }
 }
